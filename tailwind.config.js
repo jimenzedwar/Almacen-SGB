@@ -1,3 +1,5 @@
+const { addDynamicIconSelectors } = require('@iconify/tailwind');
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -8,7 +10,7 @@ export default {
     extend: {
       colors: {
         primary: {
-          50: '#F7F7F7'
+          50: '#FFFFFF',
         },
         secondary: {
           50: '#2C3EFF',
@@ -17,11 +19,11 @@ export default {
         },
         text: {
           50: '#272727',
-          100: '#7E7E7E',
+          100: '#787373',
         },
       },
       fontFamily: {
-        lato: ["Lato", 'sans-serif']
+        Manrope: ["Manrope", 'sans-serif'],
       },
       screens: {
         ssm: '600px'
@@ -29,6 +31,10 @@ export default {
     },
   },
   plugins: [
-    require('flowbite/plugin')],
+    require('flowbite/plugin'),
+    addDynamicIconSelectors({
+      includeIconSelector: true,
+      includeIconifyClass: true,
+    }),],
 }
 
