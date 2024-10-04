@@ -3,7 +3,7 @@ import './App.css'
 import { useEffect } from 'react'
 import supabase from './utils/supabase'
 import Navbar from './utils/Navbar'
-import Login from './components/login/Login'
+import Login from './utils/Login'
 import Orders from './components/orders/Orders'
 import Stock from './components/stock/Stock'
 import Users from './components/users/Users'
@@ -11,15 +11,16 @@ import Dispatches from './components/dispatches/Dispatches'
 
 function App() {
   const navigate = useNavigate()
+  useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log(session);
+      if (!session) {
+        navigate('/');
+      }
+    });
+  }, [navigate]);
 
-useEffect(() => {
-supabase.auth.onAuthStateChange((session) => {
-  if(!session) {
-    navigate('/')
-  }
-}) 
-}, [])
-
+  const isActiveLogin = location.pathname === "/"
   return (
     <div className='h-full w-full'>
     <Routes>
@@ -29,7 +30,7 @@ supabase.auth.onAuthStateChange((session) => {
       <Route path="/users" element={<Users/>} />
       <Route path="/dispatches" element={<Dispatches/>} />
     </Routes>
-    <div className='h-full'>
+    <div className={`h-full ${isActiveLogin ? "hidden" :'block'}`}>
       <Navbar/>
       </div>
     </div>

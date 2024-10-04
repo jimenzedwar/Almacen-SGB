@@ -1,7 +1,9 @@
+import SignUpForm from "../../utils/SignUpForm";
+
 const Users = () => {
     return (
         <div>
-            <h1>Users</h1>
+            <SignUpForm/>
         </div>
     )
 };
