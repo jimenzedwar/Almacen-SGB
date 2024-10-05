@@ -22,7 +22,10 @@ function App() {
 
   const isActiveLogin = location.pathname === "/"
   return (
-    <div className='h-full w-full'>
+    <div className='h-full w-full flex'>
+    <div className={`h-full ${isActiveLogin ? "hidden" :'block'}`}>
+      <Navbar/>
+      </div>
     <Routes>
       <Route path="/" element={<Login/>} />
       <Route path="/orders" element={<Orders/>} />
@@ -30,9 +33,6 @@ function App() {
       <Route path="/users" element={<Users/>} />
       <Route path="/dispatches" element={<Dispatches/>} />
     </Routes>
-    <div className={`h-full ${isActiveLogin ? "hidden" :'block'}`}>
-      <Navbar/>
-      </div>
     </div>
   )
 }
