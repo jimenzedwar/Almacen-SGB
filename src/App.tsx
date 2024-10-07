@@ -13,7 +13,6 @@ function App() {
   const navigate = useNavigate()
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log(session);
       if (!session) {
         navigate('/');
       }

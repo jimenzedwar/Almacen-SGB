@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import supabase from "../../utils/supabase";
+import userStore from "../../utils/ZustandStore";
 
 enum OrdersStatusFilter {
     Pending = 'Pending',
@@ -11,23 +12,11 @@ enum OrdersStatusFilter {
 const Orders = () => {
     const [status, setStatus] = useState<OrdersStatusFilter>(OrdersStatusFilter.All);
     
-    const [orders, setOrders] = useState<any[] | null>([]);
+    const orders = userStore((state) =>
+        state.orders,
+      );
 
-    useEffect(() => {
-        const fetchOrders = async () => {
-         
-          let { data: orders, error } = await supabase
-          .from('orders')
-            .select('*')
-         
-            if (error) {
-                console.error("Error fetching orders:", error);
-            } else {
-                setOrders(orders);
-            }
-        };
-        fetchOrders();
-    }, []);
+     
     return (
         <div className="relative">
             <h1 className="text-2xl font-semibold">Órdenes</h1>
