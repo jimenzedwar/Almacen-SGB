@@ -11,8 +11,6 @@ const Navbar = () => {
   );
   
 
-  console.log(isAdmin);
-
 
   return (
 

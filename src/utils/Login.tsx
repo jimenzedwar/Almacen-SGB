@@ -30,6 +30,9 @@ const Login = () => {
   const fetchAdmin = userStore((state) =>
     state.fetchAdmin,
 );
+  const setActiveUser = userStore((state) =>
+    state.setActiveUser,
+);
 
   const [logUser, setLogUser] = useState<LoginData>({
     email: "",
@@ -94,6 +97,16 @@ const Login = () => {
             text: "Inicio de sesión exitoso",
           });
 
+          if (data) {
+            const activeUser = {
+              sub: data.user.id,
+              role: data.user.user_metadata.role,
+              email: data.user.email,
+              full_name: data.user.user_metadata.full_name,
+              identification: data.user.user_metadata.identification,
+            };
+            setActiveUser(activeUser);
+          }
           if (data?.user.user_metadata?.role === 'admin') {
             fetchAdmin();
             fetchOrders();
