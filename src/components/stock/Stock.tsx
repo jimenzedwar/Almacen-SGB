@@ -39,12 +39,10 @@ const Stock = () => {
                 <span className=" border-b col-span-5 block mx-4"></span>
             {filteredProducts.map((product) => ( 
                 <div key={product.id} className="bg-white col-span-4 text-text-50 hover:bg-gray-100" onClick={()=> Navigate(`/product/${product.id}`)}>
-                    <div className=" justify-between grid grid-cols-4 py-3">
+                    <div className=" justify-between grid grid-cols-4 py-3 items-center">
                         <h2 className="text-lg px-3">{product.id}</h2>
-                        <div>
-                        <p className="text-sm">
-                            {product.photo}
-                        </p>
+                        <div className="flex aspect-square w-14  items-center">
+                        <img src={product.photo} alt="" className="mr-3 rounded-lg" />
                         <p className="text-sm ">
                             {product.product_name}
                         </p>

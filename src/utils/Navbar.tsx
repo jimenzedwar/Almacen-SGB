@@ -14,8 +14,7 @@ const Navbar = () => {
 
   return (
 
-    //todo agregar botones de acciones rapidas
-    <nav className="bg-primary-50 fixed lg:relative bottom-0 p-3 w-full lg:top-0 lg:h-[100vh] lg:w-fit text-xl ssm:p-5 2xl:p-6 text-text-100 font-Manrope shadow">
+    <nav className="bg-primary-50 fixed lg:fixed lg:left-0 bottom-0 p-3 w-full lg:top-0 lg:h-[100vh] lg:w-fit text-xl ssm:p-5 2xl:p-6 text-text-100 font-Manrope shadow">
       <ul className="relative flex justify-around lg:grid ">
           <img className="w-full lg:block lg:absolute hidden" src="/logo SGB.svg" alt="logo"/>
         {isAdmin === true && (
@@ -36,8 +35,8 @@ const Navbar = () => {
             <span className="text-xs lg:block hidden">Acciones rapidas</span>
             <button className=" lg:block hidden bg-secondary-50 text-primary-50 rounded-lg p-2 text-lg" onClick={()=> navigate("/newOrder")}>
             <span className="icon-[icons8--plus] text-xl mx-1 "></span>Nueva Orden</button>
-            {/* <button className=" lg:block hidden bg-secondary-50 text-primary-50 rounded-lg p-2 text-lg">
-            <span className="icon-[icons8--plus] text-xl mx-1 "></span>Nueva Orden</button> */}
+            <button className=" lg:block hidden bg-secondary-50 text-primary-50 rounded-lg p-2 text-lg" onClick={()=> navigate("/newProduct")}>
+            <span className="icon-[icons8--plus] text-xl mx-1 "></span>Nuevo Producto</button>
           </div>
         )}
         {isAdmin === false && (

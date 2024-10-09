@@ -36,9 +36,14 @@ export const validateForm = (formData: Order): FormErrors => {
     errors.contractor = "El contratista es obligatorio.";
   }
 
-  // Validar products
   if (formData.products.length === 0) {
     errors.products = "Debes agregar al menos un producto.";
+  } else {
+    // Verificar si algún producto tiene cantidad 0
+    const productWithZeroQuantity = formData.products.some(product => product.quantity === 0);
+    if (productWithZeroQuantity) {
+      errors.products = "Todos los productos deben tener una cantidad mayor a 0.";
+    }
   }
 
   return errors;
@@ -58,6 +63,8 @@ const NewOrderForm = () => {
   });
 
   const [searchText, setSearchText] = useState<string>("");
+  const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
+  const [dropdownInitialized, setDropdownInitialized] = useState<boolean>(false);
   const products = userStore((state) => state.products);
   const activeUser = userStore((state) => state.activeUser);
 
@@ -78,20 +85,44 @@ const NewOrderForm = () => {
   };
 
   const handleProductChange = (productId: string, quantity: number) => {
-    const updatedProducts = newOrder.products.map((product) =>
-      product.id === productId ? { ...product, quantity } : product
-    );
-    setNewOrder({ ...newOrder, products: updatedProducts });
+    const product = products.find((p) => p.id === productId);
+    if (product && quantity <= product.quantity) {
+      const updatedProducts = newOrder.products.map((product) =>
+        product.id === productId ? { ...product, quantity } : product
+      );
+      const updatedOrder = { ...newOrder, products: updatedProducts };
+      setNewOrder(updatedOrder);
+      setFormErrors(validateForm(updatedOrder));
+    }
   };
 
   const handleAddProduct = (productId: string) => {
     const product = products.find((p) => p.id === productId);
     if (product) {
-      setNewOrder((prevOrder) => ({
-        ...prevOrder,
-        products: [...prevOrder.products, { id: product.id, quantity: 1 }],
-      }));
+      if (selectedProducts.has(productId)) {
+        handleRemoveProduct(productId);
+      } else {
+        const updatedOrder = {
+          ...newOrder,
+          products: [...newOrder.products, { id: product.id, quantity: 0 }],
+        };
+        setNewOrder(updatedOrder);
+        setSelectedProducts((prevSelected) => new Set(prevSelected).add(productId));
+        setFormErrors(validateForm(updatedOrder));
+      }
     }
+  };
+
+  const handleRemoveProduct = (productId: string) => {
+    const updatedProducts = newOrder.products.filter((product) => product.id !== productId);
+    const updatedOrder = { ...newOrder, products: updatedProducts };
+    setNewOrder(updatedOrder);
+    setSelectedProducts((prevSelected) => {
+      const newSelected = new Set(prevSelected);
+      newSelected.delete(productId);
+      return newSelected;
+    });
+    setFormErrors(validateForm(updatedOrder));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -99,19 +130,6 @@ const NewOrderForm = () => {
 
     if (Object.values(formErrors).every((error) => error === "")) {
       try {
-        // Verificar cantidades disponibles
-        for (const orderProduct of newOrder.products) {
-          const product = products.find((p) => p.id === orderProduct.id);
-          if (product && product.quantity < orderProduct.quantity) {
-            Swal.fire({
-              icon: "error",
-              title: "Oops...",
-              text: `No hay suficiente cantidad de ${product.product_name}.`,
-            });
-            return;
-          }
-        }
-
         // Crear la orden
         const { data, error } = await supabase
           .from("orders")
@@ -135,10 +153,20 @@ const NewOrderForm = () => {
           for (const orderProduct of newOrder.products) {
             const product = products.find((p) => p.id === orderProduct.id);
             if (product) {
-              await supabase
+              const newQuantity = product.quantity - orderProduct.quantity;
+              const { error: updateError } = await supabase
                 .from("products")
-                .update({ quantity: product.quantity - orderProduct.quantity })
+                .update({ quantity: newQuantity })
                 .eq("id", product.id);
+
+              if (updateError) {
+                Swal.fire({
+                  icon: "error",
+                  title: "Oops...",
+                  text: `Error actualizando la cantidad de ${product.product_name}: ${updateError.message}`,
+                });
+                return;
+              }
             }
           }
 
@@ -163,38 +191,36 @@ const NewOrderForm = () => {
     product.product_name.toLowerCase().includes(searchText.toLowerCase())
   );
 
-
   useEffect(() => {
-    // Inicializar el dropdown cuando el componente se monta
-    const $targetEl = document.getElementById('dropdownSearch');
-    const $triggerEl = document.getElementById('dropdownSearchButton');
+    if (!dropdownInitialized) {
+      // Inicializar el dropdown cuando el componente se monta
+      const $targetEl = document.getElementById('dropdownSearch');
+      const $triggerEl = document.getElementById('dropdownSearchButton');
 
-    if ($targetEl && $triggerEl) {
-      const dropdown = new Dropdown($targetEl, $triggerEl, {
-        placement: 'bottom',
-        triggerType: 'click',
-        offsetSkidding: 0,
-        offsetDistance: 10,
-        delay: 300,
-        ignoreClickOutsideClass: false,
-        onHide: () => {
-          console.log('dropdown has been hidden');
-        },
-        onShow: () => {
-          console.log('dropdown has been shown');
-        },
-        onToggle: () => {
-          console.log('dropdown has been toggled');
-        },
-      });
+      if ($targetEl && $triggerEl) {
+        const dropdown = new Dropdown($targetEl, $triggerEl, {
+          placement: 'bottom',
+          triggerType: 'click',
+          offsetSkidding: 0,
+          offsetDistance: 10,
+          delay: 300,
+          ignoreClickOutsideClass: false,
+          onHide: () => {
+            console.log('dropdown has been hidden');
+          },
+          onShow: () => {
+            console.log('dropdown has been shown');
+          },
+          onToggle: () => {
+            console.log('dropdown has been toggled');
+          },
+        });
 
-      // Puedes usar los métodos del dropdown aquí si es necesario
-      // Ejemplo: dropdown.show();
+        setDropdownInitialized(true);
+      }
     }
-  }, []);
+  }, [dropdownInitialized]);
 
-
-       
   return (
     <form onSubmit={handleSubmit}>
       <div className="grid gap-6 mb-6 md:grid-cols-2">
@@ -214,22 +240,6 @@ const NewOrderForm = () => {
           />
           {formErrors.contractor && <p className="text-red-500 text-xs">{formErrors.contractor}</p>}
         </div>
-        <div>
-          <label htmlFor="responsible" className="block mb-2 text-sm font-medium text-text-50 dark:text-white">
-            Responsable
-          </label>
-          <input
-            type="text"
-            id="responsible"
-            className="bg-gray-50 border border-gray-300 text-text-50 text-sm rounded-lg focus:ring-secondary-50 focus:border-secondary-50 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-secondary-50 dark:focus:border-secondary-50"
-            placeholder="ID del responsable"
-            required
-            name="responsible"
-            value={newOrder.responsible}
-            readOnly
-          />
-          {formErrors.responsible && <p className="text-red-500 text-xs">{formErrors.responsible}</p>}
-        </div>
       </div>
       <div className="mb-6">
         <label htmlFor="dropdownSearchButton" className="block mb-2 text-sm font-medium text-text-50 dark:text-white">
@@ -246,7 +256,7 @@ const NewOrderForm = () => {
           <svg className="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4" />
           </svg>
-          </button>
+        </button>
         <div id="dropdownSearch" className="z-10 hidden bg-white rounded-lg shadow w-60 dark:bg-gray-700">
           <div className="p-3">
             <label htmlFor="input-group-search" className="sr-only">
@@ -277,6 +287,7 @@ const NewOrderForm = () => {
                     type="checkbox"
                     value={product.id}
                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                    checked={selectedProducts.has(product.id)}
                     onChange={() => handleAddProduct(product.id)}
                   />
                   <label htmlFor={`checkbox-item-${product.id}`} className="w-full py-2 ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">
@@ -312,8 +323,16 @@ const NewOrderForm = () => {
                     type="button"
                     className="bg-green-500 text-white px-2 py-1 rounded"
                     onClick={() => handleProductChange(orderProduct.id, orderProduct.quantity + 1)}
+                    disabled={product && orderProduct.quantity >= product.quantity}
                   >
                     +
+                  </button>
+                  <button
+                    type="button"
+                    className="bg-red-500 text-white px-2 py-1 rounded ml-2"
+                    onClick={() => handleRemoveProduct(orderProduct.id)}
+                  >
+                    Eliminar
                   </button>
                 </div>
               </li>
