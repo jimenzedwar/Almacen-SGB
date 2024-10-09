@@ -31,11 +31,11 @@ export interface Order {
 }
 
 interface ActiveUser {
-    sub: string;
-    role: string;
-    email: string | undefined;
-    full_name: string;
-    identification: string;
+  sub: string;
+  role: string;
+  email: string | undefined;
+  full_name: string;
+  identification: string;
 }
 
 interface UserStoreState {
@@ -49,6 +49,7 @@ interface UserStoreState {
   fetchUsers: () => Promise<void>;
   fetchAdmin: () => void;
   setActiveUser: (user: ActiveUser) => void;
+  subscribeToChanges: () => void;
 }
 
 const userStore = create<UserStoreState>()(
@@ -93,11 +94,97 @@ const userStore = create<UserStoreState>()(
 
       setActiveUser: (user: ActiveUser) => {
         set({ activeUser: user });
-      }
+      },
+
+      subscribeToChanges: () => {
+        const productChannel = supabase
+          .channel('products')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, payload => {
+            set(state => {
+              const updatedProducts = [...state.products];
+              switch (payload.eventType) {
+                case 'INSERT':
+                  updatedProducts.push(payload.new as Product);
+                  break;
+                case 'UPDATE':
+                  const index = updatedProducts.findIndex(p => p.id === payload.new.id);
+                  if (index !== -1) {
+                    updatedProducts[index] = payload.new as Product;
+                  }
+                  break;
+                case 'DELETE':
+                  return {
+                    ...state,
+                    products: updatedProducts.filter(p => p.id !== payload.old.id),
+                  };
+              }
+              return { ...state, products: updatedProducts };
+            });
+          })
+          .subscribe();
+
+        const orderChannel = supabase
+          .channel('orders')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, payload => {
+            set(state => {
+              const updatedOrders = [...state.orders];
+              switch (payload.eventType) {
+                case 'INSERT':
+                  updatedOrders.push(payload.new as Order);
+                  break;
+                case 'UPDATE':
+                  const index = updatedOrders.findIndex(o => o.id === payload.new.id);
+                  if (index !== -1) {
+                    updatedOrders[index] = payload.new as Order;
+                  }
+                  break;
+                case 'DELETE':
+                  return {
+                    ...state,
+                    orders: updatedOrders.filter(o => o.id !== payload.old.id),
+                  };
+              }
+              return { ...state, orders: updatedOrders };
+            });
+          })
+          .subscribe();
+
+        const userChannel = supabase
+          .channel('users')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, payload => {
+            set(state => {
+              const updatedUsers = [...state.users];
+              switch (payload.eventType) {
+                case 'INSERT':
+                  updatedUsers.push(payload.new as User);
+                  break;
+                case 'UPDATE':
+                  const index = updatedUsers.findIndex(u => u.id === payload.new.id);
+                  if (index !== -1) {
+                    updatedUsers[index] = payload.new as User;
+                  }
+                  break;
+                case 'DELETE':
+                  return {
+                    ...state,
+                    users: updatedUsers.filter(u => u.id !== payload.old.id),
+                  };
+              }
+              return { ...state, users: updatedUsers };
+            });
+          })
+          .subscribe();
+
+        return () => {
+          supabase.removeChannel(productChannel);
+          supabase.removeChannel(orderChannel);
+          supabase.removeChannel(userChannel);
+        };
+      },
     }),
     {
-      name: 'user-store', 
-      storage: createJSONStorage(() => localStorage), 
+      name: 'user-store',
+      storage: createJSONStorage(() => localStorage),
     }
   )
 );

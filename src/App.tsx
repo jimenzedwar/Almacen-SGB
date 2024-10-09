@@ -8,9 +8,24 @@ import Orders from './components/orders/Orders'
 import Stock from './components/stock/Stock'
 import Users from './components/users/Users'
 import Dispatches from './components/dispatches/Dispatches'
+import userStore from './utils/ZustandStore'
+import OrderDetail from './components/orders/OrderDetail'
+import NewOrderForm from './components/orders/NewOrderForm'
+import ProductDetail from './components/stock/ProductDetail'
 
 function App() {
   const navigate = useNavigate()
+
+  const subscribeToChanges = userStore(state => state.subscribeToChanges);
+
+  useEffect(() => {
+    const unsubscribe = subscribeToChanges;
+    return () => {
+      if (typeof unsubscribe === 'function') {
+        unsubscribe();
+      }
+    };
+  }, [subscribeToChanges]);
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (!session) {
@@ -29,8 +44,11 @@ function App() {
       <Route path="/" element={<Login/>} />
       <Route path="/orders" element={<Orders/>} />
       <Route path="/stock" element={<Stock/>} />
+      <Route path="/product/:id" element={<ProductDetail/>} />
       <Route path="/users" element={<Users/>} />
       <Route path="/dispatches" element={<Dispatches/>} />
+      <Route path="/order/:id" element={<OrderDetail/>} />
+      <Route path="/newOrder" element={<NewOrderForm/>} />
     </Routes>
     </div>
   )

@@ -12,6 +12,7 @@
   "dependencies": {
     "@iconify-json/hugeicons": "^1.2.0",
     "@iconify-json/icon-park-outline": "^1.2.0",
+    "@iconify-json/icons8": "^1.2.0",
     "@iconify-json/solar": "^1.2.0",
     "@supabase/supabase-js": "^2.45.4",
     "flowbite": "^2.5.2",
