@@ -12,10 +12,14 @@ export interface Products {
   photo: string;
 }
 
+export interface OrderProduct extends Products {
+  quantity: number;
+}
+
 export interface Order {
   contractor: string;
   responsible: string;
-  products: { id: string; quantity: number }[];
+  products: OrderProduct[];
 }
 
 export interface FormErrors {
@@ -104,7 +108,7 @@ const NewOrderForm = () => {
       } else {
         const updatedOrder = {
           ...newOrder,
-          products: [...newOrder.products, { id: product.id, quantity: 0 }],
+          products: [...newOrder.products, { ...product, quantity: 0 }],
         };
         setNewOrder(updatedOrder);
         setSelectedProducts((prevSelected) => new Set(prevSelected).add(productId));
@@ -222,8 +226,9 @@ const NewOrderForm = () => {
   }, [dropdownInitialized]);
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="grid gap-6 mb-6 md:grid-cols-2">
+    <div>
+    <form onSubmit={handleSubmit} className="bg-white shadow-md p-3 h-full m-5 rounded-lg grid">
+
         <div>
           <label htmlFor="contractor" className="block mb-2 text-sm font-medium text-text-50 dark:text-white">
             Contratista
@@ -240,7 +245,7 @@ const NewOrderForm = () => {
           />
           {formErrors.contractor && <p className="text-red-500 text-xs">{formErrors.contractor}</p>}
         </div>
-      </div>
+      
       <div className="mb-6">
         <label htmlFor="dropdownSearchButton" className="block mb-2 text-sm font-medium text-text-50 dark:text-white">
           Buscar Productos
@@ -252,7 +257,7 @@ const NewOrderForm = () => {
           className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
           type="button"
         >
-          Dropdown search
+          Productos
           <svg className="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4" />
           </svg>
@@ -260,7 +265,7 @@ const NewOrderForm = () => {
         <div id="dropdownSearch" className="z-10 hidden bg-white rounded-lg shadow w-60 dark:bg-gray-700">
           <div className="p-3">
             <label htmlFor="input-group-search" className="sr-only">
-              Search
+              Buscar
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
@@ -297,9 +302,9 @@ const NewOrderForm = () => {
               </li>
             ))}
           </ul>
-        </div>
       </div>
-      <div className="mb-6">
+      </div>
+      <div className="mb-6 col-span-2 w-full">
         <label htmlFor="products" className="block mb-2 text-sm font-medium text-text-50 dark:text-white">
           Productos Seleccionados
         </label>
@@ -307,12 +312,12 @@ const NewOrderForm = () => {
           {newOrder.products.map((orderProduct) => {
             const product = products.find((p) => p.id === orderProduct.id);
             return (
-              <li key={orderProduct.id} className="flex justify-between items-center p-2 border-b border-gray-300">
+              <li key={orderProduct.id} className="flex justify-between items-center p-2 border-b border-gray-300 w-full">
                 <span>{product?.product_name}</span>
                 <div className="flex items-center">
                   <button
                     type="button"
-                    className="bg-red-500 text-white px-2 py-1 rounded"
+                    className="p-2 rounded disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed bg-secondary-100 text-secondary-50 hover:bg-secondary-50 hover:text-white"
                     onClick={() => handleProductChange(orderProduct.id, orderProduct.quantity - 1)}
                     disabled={orderProduct.quantity <= 1}
                   >
@@ -321,7 +326,7 @@ const NewOrderForm = () => {
                   <span className="mx-2">{orderProduct.quantity}</span>
                   <button
                     type="button"
-                    className="bg-green-500 text-white px-2 py-1 rounded"
+                    className="p-2 rounded disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed bg-secondary-100 text-secondary-50 hover:bg-secondary-50 hover:text-white"
                     onClick={() => handleProductChange(orderProduct.id, orderProduct.quantity + 1)}
                     disabled={product && orderProduct.quantity >= product.quantity}
                   >
@@ -329,10 +334,10 @@ const NewOrderForm = () => {
                   </button>
                   <button
                     type="button"
-                    className="bg-red-500 text-white px-2 py-1 rounded ml-2"
+                    className="bg-red-200 text-red-500 flex justify-items-center p-2 rounded ml-2 "
                     onClick={() => handleRemoveProduct(orderProduct.id)}
                   >
-                    Eliminar
+                   <span className="icon-[solar--trash-bin-2-linear]"></span>
                   </button>
                 </div>
               </li>
@@ -349,6 +354,7 @@ const NewOrderForm = () => {
         Crear Orden
       </button>
     </form>
+    </div>
   );
 };
 
