@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
-import userStore, { Product } from "../../utils/ZustandStore";
+import userStore from "../../utils/ZustandStore";
 import { useNavigate } from "react-router-dom";
 
 const Stock = () => {

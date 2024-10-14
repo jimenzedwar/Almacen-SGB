@@ -134,7 +134,7 @@ const NewOrderForm = () => {
     if (Object.values(formErrors).every((error) => error === "")) {
       try {
         // Crear la orden
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from("orders")
           .insert([
             {
@@ -202,7 +202,7 @@ const NewOrderForm = () => {
     const $triggerEl = document.getElementById('dropdownSearchButton');
 
     if ($targetEl && $triggerEl) {
-      const dropdown = new Dropdown($targetEl, $triggerEl, {
+      new Dropdown($targetEl, $triggerEl, {
         placement: 'bottom',
         triggerType: 'click',
         offsetSkidding: 0,

@@ -74,7 +74,7 @@ const NewProductForm = () => {
 
   const uploadFile = async (file: File): Promise<string | null> => {
     const filePath = `${Date.now()}_${file.name}`;
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from('products_photos')
       .upload(filePath, file);
 
@@ -116,7 +116,7 @@ const NewProductForm = () => {
           }
         }
 
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from("products")
           .insert([
             {

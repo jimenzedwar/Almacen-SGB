@@ -68,9 +68,6 @@ const UserDetail = () => {
     return filteredOrders.slice((currentPage - 1) * ordersPerPage, currentPage * ordersPerPage);
   }, [filteredOrders, currentPage]);
 
-  const pendingOrders = useMemo(() => {
-    return filteredOrders.filter(order => order.status === "pending");
-  }, [filteredOrders]);
 
   const getUserNameById = useCallback((userId: string) => {
     const user = users.find((user) => user.id === userId.toString());
