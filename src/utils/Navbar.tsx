@@ -11,7 +11,7 @@ const Navbar = () => {
   }, [navigate]);
 
   return (
-    <nav className="bg-primary-50 fixed lg:fixed lg:left-0 bottom-0 p-3 w-full lg:top-0 lg:h-[100vh] lg:w-fit text-xl ssm:p-5 2xl:p-6 text-text-100 font-Manrope shadow">
+    <nav className="bg-primary-50 fixed lg:fixed lg:left-0 bottom-0 p-3 w-full lg:top-0 lg:h-[100vh] lg:w-fit text-xl ssm:p-5 2xl:p-6 text-text-100 font-Manrope shadow z-30">
       <ul className="relative flex justify-around lg:grid">
         <img className="w-full lg:block lg:absolute hidden" src="/logo SGB.svg" alt="logo" />
         {isAdmin && (
