@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import supabase from "./supabase";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
@@ -17,38 +17,17 @@ interface LoginErrors {
 const Login = () => {
   const navigate = useNavigate();
 
+  const fetchProducts = userStore((state) => state.fetchProducts);
+  const fetchUsers = userStore((state) => state.fetchUsers);
+  const fetchOrders = userStore((state) => state.fetchOrders);
+  const fetchAdmin = userStore((state) => state.fetchAdmin);
+  const setActiveUser = userStore((state) => state.setActiveUser);
 
-  const fetchProducts = userStore((state) =>
-    state.fetchProducts,
-);
-  const fetchUsers = userStore((state) =>
-    state.fetchUsers,
-);
-  const fetchOrders = userStore((state) =>
-    state.fetchOrders,
-);
-  const fetchAdmin = userStore((state) =>
-    state.fetchAdmin,
-);
-  const setActiveUser = userStore((state) =>
-    state.setActiveUser,
-);
+  const [logUser, setLogUser] = useState<LoginData>({ email: "", password: "" });
+  const [loginErrors, setLoginErrors] = useState<LoginErrors>({ email: "", password: "" });
 
-  const [logUser, setLogUser] = useState<LoginData>({
-    email: "",
-    password: "",
-  });
-
-  const [loginErrors, setLoginErrors] = useState<LoginErrors>({
-    email: "",
-    password: "",
-  });
-
-  const validateForm = (formData: LoginData): LoginErrors => {
-    const errors: LoginErrors = {
-      email: "",
-      password: "",
-    };
+  const validateForm = useCallback((formData: LoginData): LoginErrors => {
+    const errors: LoginErrors = { email: "", password: "" };
 
     // Validar email
     if (!formData.email) {
@@ -65,16 +44,16 @@ const Login = () => {
     }
 
     return errors;
-  };
+  }, []);
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = useCallback((event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
     const updatedUser = { ...logUser, [name]: value };
     setLogUser(updatedUser);
     setLoginErrors(validateForm(updatedUser));
-  };
+  }, [logUser, validateForm]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (Object.values(loginErrors).every((error) => error === "")) {
@@ -128,7 +107,7 @@ const Login = () => {
         });
       }
     }
-  };
+  }, [logUser, loginErrors, fetchAdmin, fetchOrders, fetchProducts, fetchUsers, navigate, setActiveUser]);
 
   return (
     <section className="bg-gray-50 dark:bg-gray-900 font-Manrope w-full">

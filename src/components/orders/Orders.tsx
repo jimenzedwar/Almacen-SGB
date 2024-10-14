@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import userStore from "../../utils/ZustandStore";
 import { useNavigate } from "react-router-dom";
 
@@ -17,33 +17,33 @@ const Orders = () => {
     const navigate = useNavigate();
     const orders = userStore((state) => state.orders);
 
-    const filteredOrders = orders.filter(order => {
+    const filteredOrders = useMemo(() => {
         const searchLower = searchText.toLowerCase();
-        return (
+        return orders.filter(order => (
             (status === OrdersStatusFilter.All || order.status === status) &&
             (order.id.toString().toLowerCase().includes(searchLower) ||
             order.contractor.toLowerCase().includes(searchLower) ||
             order.dispatcher.toLowerCase().includes(searchLower) ||
             order.responsible.toLowerCase().includes(searchLower)
-        ));
-    });
+        )));
+    }, [orders, status, searchText]);
 
     const ordersPerPage = 10;
     const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
-    const currentOrders = filteredOrders.slice((currentPage - 1) * ordersPerPage, currentPage * ordersPerPage);
+    const currentOrders = useMemo(() => {
+        return filteredOrders.slice((currentPage - 1) * ordersPerPage, currentPage * ordersPerPage);
+    }, [filteredOrders, currentPage, ordersPerPage]);
 
-    const pendingOrders = filteredOrders.filter(order => order.status === "pending");
-
-    const getUserNameById = (userId: string) => {
+    const getUserNameById = useCallback((userId: string) => {
         const user = users.find((user) => user.id === userId.toString());
         return user ? user.full_name : "Desconocido";
-    };
+    }, [users]);
 
-    const handlePageChange = (newPage: number) => {
+    const handlePageChange = useCallback((newPage: number) => {
         if (newPage > 0 && newPage <= totalPages) {
             setCurrentPage(newPage);
         }
-    };
+    }, [totalPages]);
 
     return (
         <div className="relative w-full font-Manrope text-text-50">
@@ -121,25 +121,26 @@ const Orders = () => {
                 </div>
             ))}
             </div>
-            <div className="lg:hidden p-4">{pendingOrders.length > 0 ? (
-          pendingOrders.map((order) => (
-            <div key={order.id} className="bg-white text-text-50 font-Manrope hover:bg-gray-100 p-3 rounded-lg shadow-md mt-4" onClick={() => navigate(`/order/${order.id}`)}>
-              <div className="grid">
-                <p className="text-sm text-text-100">Orden #{order.id}</p>
-                <p className="text-sm mt-3">
-                  {order.contractor}
-                </p>
-                <p className={`justify-self-end w-fit rounded-full px-2 py-1 ${order.status === "pending" ? "bg-gray-100 text-gray-500 " : "bg-green-100 text-green-400"}`}>
-                  {order.status}
-                </p>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div>
-            <p>No hay ordenes pendientes</p>
-          </div>
-        )}
+            <div className="lg:hidden p-4">
+                {filteredOrders.filter(order => order.status === "pending").length > 0 ? (
+                    filteredOrders.filter(order => order.status === "pending").map((order) => (
+                        <div key={order.id} className="bg-white text-text-50 font-Manrope hover:bg-gray-100 p-3 rounded-lg shadow-md mt-4" onClick={() => navigate(`/order/${order.id}`)}>
+                            <div className="grid">
+                                <p className="text-sm text-text-100">Orden #{order.id}</p>
+                                <p className="text-sm mt-3">
+                                    {order.contractor}
+                                </p>
+                                <p className={`justify-self-end w-fit rounded-full px-2 py-1 ${order.status === "pending" ? "bg-gray-100 text-gray-500 " : "bg-green-100 text-green-400"}`}>
+                                    {order.status}
+                                </p>
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <div>
+                        <p>No hay ordenes pendientes</p>
+                    </div>
+                )}
             </div>
             <div className="flex justify-between items-center p-4">
                 <button

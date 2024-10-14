@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import userStore, { Product } from "../../utils/ZustandStore";
 import { useNavigate } from "react-router-dom";
 
@@ -9,23 +9,25 @@ const Stock = () => {
     
     const navigate = useNavigate();
 
-    const filteredProducts = products.filter(product => {
+    const filteredProducts = useMemo(() => {
         const searchLower = searchText.toLowerCase();
-        return (
+        return products.filter(product => 
             product.id.toString().toLowerCase().includes(searchLower) ||
             product.product_name.toLowerCase().includes(searchLower)
         );
-    });
+    }, [products, searchText]);
 
     const productsPerPage = 10;
     const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
-    const currentProducts = filteredProducts.slice((currentPage - 1) * productsPerPage, currentPage * productsPerPage);
+    const currentProducts = useMemo(() => {
+        return filteredProducts.slice((currentPage - 1) * productsPerPage, currentPage * productsPerPage);
+    }, [filteredProducts, currentPage, productsPerPage]);
 
-    const handlePageChange = (newPage: number) => {
+    const handlePageChange = useCallback((newPage: number) => {
         if (newPage > 0 && newPage <= totalPages) {
             setCurrentPage(newPage);
         }
-    };
+    }, [totalPages]);
 
     return (
         <div className="relative w-full font-Manrope text-text-50">

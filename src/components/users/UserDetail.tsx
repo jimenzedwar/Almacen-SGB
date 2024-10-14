@@ -1,10 +1,10 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import supabase from "../../utils/supabase";
 import userStore, { Order, User } from "../../utils/ZustandStore";
 
 const UserDetail = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const userId = id;
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -18,7 +18,7 @@ const UserDetail = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        let { data, error } = await supabase
+        const { data, error } = await supabase
           .from('users')
           .select("*")
           .eq('id', userId);
@@ -72,16 +72,16 @@ const UserDetail = () => {
     return filteredOrders.filter(order => order.status === "pending");
   }, [filteredOrders]);
 
-  const getUserNameById = (userId: string) => {
+  const getUserNameById = useCallback((userId: string) => {
     const user = users.find((user) => user.id === userId.toString());
     return user ? user.full_name : "Desconocido";
-  };
+  }, [users]);
 
-  const handlePageChange = (newPage: number) => {
+  const handlePageChange = useCallback((newPage: number) => {
     if (newPage > 0 && newPage <= totalPages) {
       setCurrentPage(newPage);
     }
-  };
+  }, [totalPages]);
 
   if (loading) {
     return <div>Loading...</div>;

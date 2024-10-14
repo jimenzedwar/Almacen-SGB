@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import supabase from "../../utils/supabase";
 import Swal from "sweetalert2";
 
@@ -17,7 +17,7 @@ export interface FormErrors {
   photo: string;
 }
 
-export const validateForm = (formData: Products, file: File | null): FormErrors => {
+export const validateForm = (formData: Omit<Products, 'id'>, file: File | null): FormErrors => {
   const errors: FormErrors = {
     product_name: "",
     product_measurement: "",
@@ -42,8 +42,7 @@ export const validateForm = (formData: Products, file: File | null): FormErrors 
 };
 
 const NewProductForm = () => {
-  const [newProduct, setNewProduct] = useState<Products>({
-    id: 0,
+  const [newProduct, setNewProduct] = useState<Omit<Products, 'id'>>({
     product_name: "",
     product_measurement: "",
     quantity: 0,
@@ -59,19 +58,19 @@ const NewProductForm = () => {
 
   const [file, setFile] = useState<File | null>(null);
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = useCallback((event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
     const updatedProduct = { ...newProduct, [name]: value };
     setNewProduct(updatedProduct);
     setFormErrors(validateForm(updatedProduct, file));
-  };
+  }, [newProduct, file]);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       setFile(event.target.files[0]);
       setFormErrors(validateForm(newProduct, event.target.files[0]));
     }
-  };
+  }, [newProduct]);
 
   const uploadFile = async (file: File): Promise<string | null> => {
     const filePath = `${Date.now()}_${file.name}`;
@@ -116,7 +115,6 @@ const NewProductForm = () => {
             return;
           }
         }
-        console.log(photoUrl);
 
         const { data, error } = await supabase
           .from("products")
@@ -156,7 +154,7 @@ const NewProductForm = () => {
 
   return (
     <div>
-    <form onSubmit={handleSubmit} className="bg-white shadow-md p-3 h-full m-5 rounded-lg sm:grid sm:grid-cols-2 sm:justify-items-start lg:p-5 space-y-5 lg:space-y-0 lg:gap-6">
+      <form onSubmit={handleSubmit} className="bg-white shadow-md p-3 h-full m-5 rounded-lg sm:grid sm:grid-cols-2 sm:justify-items-start lg:p-5 space-y-5 lg:space-y-0 lg:gap-6">
         <div>
           <label htmlFor="product_name" className="block mb-2 text-sm font-medium text-text-50 dark:text-white">
             Nombre del Producto
@@ -216,16 +214,15 @@ const NewProductForm = () => {
             onChange={handleFileChange}
           />
           {formErrors.photo && <p className="text-red-500 text-xs">{formErrors.photo}</p>}
-
-      </div>
-      <button
-        type="submit"
-        className="disabled:cursor-not-allowed disabled:bg-secondary-100 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-        disabled={!Object.values(formErrors).every((error) => error === "")}
-      >
-        Añadir Producto
-      </button>
-    </form>
+        </div>
+        <button
+          type="submit"
+          className="disabled:cursor-not-allowed disabled:bg-secondary-100 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          disabled={!Object.values(formErrors).every((error) => error === "")}
+        >
+          Añadir Producto
+        </button>
+      </form>
     </div>
   );
 };
