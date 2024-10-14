@@ -167,8 +167,9 @@ const SignUpForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="grid gap-6 mb-6 md:grid-cols-2">
+    <div>
+    <form onSubmit={handleSubmit} className="bg-white p-3 lg:p-5 m-5 mb-20 rounded-lg">
+      <div className="grid gap-6 mb-6 md:grid-cols-2 ">
         <div>
           <label htmlFor="first_name" className="block mb-2 text-sm font-medium text-text-50 dark:text-white">
             Nombre
@@ -209,7 +210,7 @@ const SignUpForm = () => {
             type="text"
             id="identification"
             className="bg-gray-50 border border-gray-300 text-text-50 text-sm rounded-lg focus:ring-secondary-50 focus:border-secondary-50 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-secondary-50 dark:focus:border-secondary-50"
-            placeholder="12.345.678"
+            placeholder="12345678"
             required
             name="identification"
             value={user.identification}
@@ -229,7 +230,7 @@ const SignUpForm = () => {
             onChange={handleChange}
           >
             <option value="">Rol</option>
-            <option value="user">Usuario</option>
+            <option value="user">Despachador</option>
             <option value="admin">Administrador</option>
           </select>
           {formErrors.role && <p className="text-red-500 text-xs">{formErrors.role}</p>}
@@ -276,6 +277,7 @@ const SignUpForm = () => {
         Crear Usuario
       </button>
     </form>
+    </div>
   );
 };
 

@@ -155,8 +155,8 @@ const NewProductForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="grid gap-6 mb-6 md:grid-cols-2">
+    <div>
+    <form onSubmit={handleSubmit} className="bg-white shadow-md p-3 h-full m-5 rounded-lg sm:grid sm:grid-cols-2 sm:justify-items-start lg:p-5 space-y-5 lg:space-y-0 lg:gap-6">
         <div>
           <label htmlFor="product_name" className="block mb-2 text-sm font-medium text-text-50 dark:text-white">
             Nombre del Producto
@@ -173,7 +173,7 @@ const NewProductForm = () => {
           />
           {formErrors.product_name && <p className="text-red-500 text-xs">{formErrors.product_name}</p>}
         </div>
-        <div>
+        <div className="">
           <label htmlFor="product_measurement" className="block mb-2 text-sm font-medium text-text-50 dark:text-white">
             Medida del Producto
           </label>
@@ -189,8 +189,6 @@ const NewProductForm = () => {
           />
           {formErrors.product_measurement && <p className="text-red-500 text-xs">{formErrors.product_measurement}</p>}
         </div>
-      </div>
-      <div className="grid gap-6 mb-6 md:grid-cols-2">
         <div>
           <label htmlFor="quantity" className="block mb-2 text-sm font-medium text-text-50 dark:text-white">
             Cantidad
@@ -218,16 +216,17 @@ const NewProductForm = () => {
             onChange={handleFileChange}
           />
           {formErrors.photo && <p className="text-red-500 text-xs">{formErrors.photo}</p>}
-        </div>
+
       </div>
       <button
         type="submit"
         className="disabled:cursor-not-allowed disabled:bg-secondary-100 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         disabled={!Object.values(formErrors).every((error) => error === "")}
       >
-        Crear Producto
+        Añadir Producto
       </button>
     </form>
+    </div>
   );
 };
 

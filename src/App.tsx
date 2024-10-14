@@ -14,6 +14,7 @@ import NewOrderForm from './components/orders/NewOrderForm'
 import ProductDetail from './components/stock/ProductDetail'
 import UserDetail from './components/users/UserDetail'
 import NewProductForm from './components/stock/NewProductForm'
+import SignUpForm from './utils/SignUpForm'
 
 function App() {
   const navigate = useNavigate()
@@ -51,6 +52,7 @@ function App() {
       <Route path="/newProduct" element={<NewProductForm/>} />
       <Route path="/product/:id" element={<ProductDetail/>} />
       <Route path="/users" element={<Users/>} />
+      <Route path="/newUser" element={<SignUpForm/>} />
       <Route path="/user/:id" element={<UserDetail/>} />
       <Route path="/dispatches" element={<Dispatches/>} />
       <Route path="/order/:id" element={<OrderDetail/>} />

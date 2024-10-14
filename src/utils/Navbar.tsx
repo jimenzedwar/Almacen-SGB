@@ -33,9 +33,9 @@ const Navbar = () => {
               Usuarios
             </button>
             <span className="text-xs lg:block hidden">Acciones rapidas</span>
-            <button className=" lg:block hidden bg-secondary-50 text-primary-50 rounded-lg p-2 text-lg my-3" onClick={()=> navigate("/newOrder")}>
+            <button className="lg:flex items-center hidden bg-secondary-50 text-primary-50 rounded-lg p-2 text-lg my-3" onClick={()=> navigate("/newOrder")}>
             <span className="icon-[icons8--plus] text-xl mx-1 "></span>Nueva Orden</button>
-            <button className=" lg:block hidden bg-secondary-50 text-primary-50 rounded-lg p-2 text-lg" onClick={()=> navigate("/newProduct")}>
+            <button className="lg:flex items-center hidden bg-secondary-50 text-primary-50 rounded-lg p-2 text-lg" onClick={()=> navigate("/newProduct")}>
             <span className="icon-[icons8--plus] text-xl mx-1 "></span>Nuevo Producto</button>
           </div>
         )}

@@ -227,7 +227,7 @@ const NewOrderForm = () => {
 
   return (
     <div>
-    <form onSubmit={handleSubmit} className="bg-white shadow-md p-3 h-full m-5 rounded-lg grid">
+    <form onSubmit={handleSubmit} className="bg-white shadow-md p-3 h-full m-5 rounded-lg sm:grid sm:grid-cols-2 sm:justify-items-start">
 
         <div>
           <label htmlFor="contractor" className="block mb-2 text-sm font-medium text-text-50 dark:text-white">
